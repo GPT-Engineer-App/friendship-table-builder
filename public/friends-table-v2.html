@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            table, .buttons {
+                width: 100%;
+            }
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .buttons button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table id="friendsTable">
+            <thead>
+                <tr>
+                    <th>Friend's Name</th>
+                    <th>Sex</th>
+                    <th>Phone Number</th>
+                    <th>Street Name</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th>Zip Code</th>
+                    <th>Email</th>
+                    <th>Years of Friendship</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+        <div class="buttons">
+            <button onclick="addRow()">Add Row</button>
+            <button onclick="sendReport()">Send Report</button>
+        </div>
+    </div>
+    <script>
+        const tableBody = document.querySelector('#friendsTable tbody');
+        const initialRows = 15;
+
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
+        function setCookie(name, value, options = {}) {
+            options = {
+                path: '/',
+                ...options
+            };
+
+            if (options.expires instanceof Date) {
+                options.expires = options.expires.toUTCString();
+            }
+
+            let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+
+            for (let optionKey in options) {
+                updatedCookie += "; " + optionKey;
+                let optionValue = options[optionKey];
+                if (optionValue !== true) {
+                    updatedCookie += "=" + optionValue;
+                }
+            }
+
+            document.cookie = updatedCookie;
+        }
+
+        function saveData() {
+            const rows = [];
+            tableBody.querySelectorAll('tr').forEach(tr => {
+                const row = {};
+                tr.querySelectorAll('input').forEach(input => {
+                    row[input.name] = input.value;
+                });
+                rows.push(row);
+            });
+            setCookie('friendsData', JSON.stringify(rows), { 'max-age': 3600 * 24 * 365 });
+        }
+
+        function loadData() {
+            const data = getCookie('friendsData');
+            if (data) {
+                const rows = JSON.parse(data);
+                rows.forEach(row => addRow(row));
+            } else {
+                for (let i = 0; i < initialRows; i++) {
+                    addRow();
+                }
+            }
+        }
+
+        function addRow(data = {}) {
+            const tr = document.createElement('tr');
+            const fields = ['name', 'sex', 'phone', 'street', 'city', 'country', 'zip', 'email', 'years'];
+            fields.forEach(field => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = field;
+                input.value = data[field] || '';
+                input.size = 15;
+                input.onchange = saveData;
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+            tableBody.appendChild(tr);
+        }
+
+        function sendReport() {
+            const email = "ohad_gross@hotmail.com";
+            const subject = `Names Report - ${new Date().toLocaleString()}`;
+            let body = '';
+            tableBody.querySelectorAll('tr').forEach(tr => {
+                tr.querySelectorAll('input').forEach(input => {
+                    body += `${input.name}: ${input.value}, `;
+                });
+                body = body.slice(0, -2); // Remove last comma and space
+                body += '\n';
+            });
+            body = encodeURIComponent(body);
+            window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${body}`;
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
