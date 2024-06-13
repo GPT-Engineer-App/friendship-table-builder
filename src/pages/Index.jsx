@@ -3,6 +3,7 @@ import { Container, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Input, VSta
 
 const Index = () => {
   const [rows, setRows] = useState(Array(15).fill({
+    id: '',
     name: '',
     sex: '',
     phone: '',
@@ -33,6 +34,7 @@ const Index = () => {
 
   const addRow = () => {
     setRows([...rows, {
+      id: Date.now().toString(),
       name: '',
       sex: '',
       phone: '',
@@ -49,7 +51,7 @@ const Index = () => {
     const email = "ohad_gross@hotmail.com";
     const subject = `Names Report - ${new Date().toLocaleString()}`;
     const body = rows.map(row => 
-      `Name: ${row.name}, Sex: ${row.sex}, Phone: ${row.phone}, Street: ${row.street}, City: ${row.city}, Country: ${row.country}, Zip: ${row.zip}, Email: ${row.email}, Years: ${row.years}`
+      `ID: ${row.id}, Name: ${row.name}, Sex: ${row.sex}, Phone: ${row.phone}, Street: ${row.street}, City: ${row.city}, Country: ${row.country}, Zip: ${row.zip}, Email: ${row.email}, Years: ${row.years}`
     ).join('\n');
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   };
@@ -72,7 +74,7 @@ const Index = () => {
         </Thead>
         <Tbody>
           {rows.map((row, index) => (
-            <Tr key={index}>
+            <Tr key={row.id}>
               <Td><Input size="sm" value={row.name} onChange={(e) => handleChange(index, 'name', e.target.value)} /></Td>
               <Td>
                 <Select size="sm" value={row.sex} onChange={(e) => handleChange(index, 'sex', e.target.value)}>
