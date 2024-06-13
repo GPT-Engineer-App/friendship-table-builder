@@ -79,7 +79,7 @@
         const table = document.getElementById('friendsTable').getElementsByTagName('tbody')[0];
         const initialRows = 1;
 
-        function createRow(data = {}, index) {
+        function createRow(data = {}) {
             const row = table.insertRow();
             const fields = ['name', 'sex', 'phone', 'street', 'city', 'country', 'zip', 'email', 'years'];
             fields.forEach(field => {
@@ -93,21 +93,19 @@
                         select.appendChild(option);
                     });
                     select.value = data[field] || 'Select';
-                    select.name = `${field}_${index}`;
                     cell.appendChild(select);
                 } else {
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.size = 15;
                     input.value = data[field] || '';
-                    input.name = `${field}_${index}`;
                     cell.appendChild(input);
                 }
             });
         }
 
         function addRow() {
-            createRow({}, table.rows.length);
+            createRow();
             saveData();
         }
 
@@ -135,10 +133,10 @@
             const friendsDataCookie = cookies.find(cookie => cookie.startsWith('friendsData='));
             if (friendsDataCookie) {
                 const friendsData = JSON.parse(friendsDataCookie.split('=')[1]);
-                friendsData.forEach((data, index) => createRow(data, index));
+                friendsData.forEach(data => createRow(data));
             } else {
                 for (let i = 0; i < initialRows; i++) {
-                    createRow({}, i);
+                    createRow();
                 }
             }
         }
