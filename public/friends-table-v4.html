@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"], select {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        @media (max-width: 600px) {
+            table, .buttons {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table id="friendsTable">
+            <thead>
+                <tr>
+                    <th>Friend's Name</th>
+                    <th>Sex</th>
+                    <th>Phone Number</th>
+                    <th>Street Name</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th>Zip Code</th>
+                    <th>Email</th>
+                    <th>Years of Friendship</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+        <div class="buttons">
+            <button onclick="addRow()">Add Row</button>
+            <button onclick="sendReport()">Send Report</button>
+        </div>
+    </div>
+    <script>
+        const table = document.getElementById('friendsTable').getElementsByTagName('tbody')[0];
+        const initialRows = 1;
+
+        function createRow(data = {}) {
+            const row = table.insertRow();
+            const fields = ['name', 'sex', 'phone', 'street', 'city', 'country', 'zip', 'email', 'years'];
+            fields.forEach(field => {
+                const cell = row.insertCell();
+                if (field === 'sex') {
+                    const select = document.createElement('select');
+                    ['Select', 'Male', 'Female', 'Homo', 'Lesbian', 'Transgender', 'Bi Sexual'].forEach(optionText => {
+                        const option = document.createElement('option');
+                        option.value = optionText;
+                        option.text = optionText;
+                        select.appendChild(option);
+                    });
+                    select.value = data[field] || 'Select';
+                    cell.appendChild(select);
+                } else {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.size = 15;
+                    input.value = data[field] || '';
+                    cell.appendChild(input);
+                }
+            });
+        }
+
+        function addRow() {
+            createRow();
+            saveData();
+        }
+
+        function saveData() {
+            const rows = [];
+            for (let i = 0; i < table.rows.length; i++) {
+                const cells = table.rows[i].cells;
+                rows.push({
+                    name: cells[0].children[0].value,
+                    sex: cells[1].children[0].value,
+                    phone: cells[2].children[0].value,
+                    street: cells[3].children[0].value,
+                    city: cells[4].children[0].value,
+                    country: cells[5].children[0].value,
+                    zip: cells[6].children[0].value,
+                    email: cells[7].children[0].value,
+                    years: cells[8].children[0].value
+                });
+            }
+            document.cookie = `friendsData=${JSON.stringify(rows)}; path=/`;
+        }
+
+        function loadData() {
+            const cookies = document.cookie.split('; ');
+            const friendsDataCookie = cookies.find(cookie => cookie.startsWith('friendsData='));
+            if (friendsDataCookie) {
+                const friendsData = JSON.parse(friendsDataCookie.split('=')[1]);
+                friendsData.forEach(data => createRow(data));
+            } else {
+                for (let i = 0; i < initialRows; i++) {
+                    createRow();
+                }
+            }
+        }
+
+        function sendReport() {
+            const rows = [];
+            for (let i = 0; i < table.rows.length; i++) {
+                const cells = table.rows[i].cells;
+                rows.push({
+                    name: cells[0].children[0].value,
+                    sex: cells[1].children[0].value,
+                    phone: cells[2].children[0].value,
+                    street: cells[3].children[0].value,
+                    city: cells[4].children[0].value,
+                    country: cells[5].children[0].value,
+                    zip: cells[6].children[0].value,
+                    email: cells[7].children[0].value,
+                    years: cells[8].children[0].value
+                });
+            }
+            const email = "ohad_gross@hotmail.com";
+            const subject = `Names Report - ${new Date().toLocaleString()}`;
+            const body = rows.map(row => 
+                `Name: ${row.name}, Sex: ${row.sex}, Phone: ${row.phone}, Street: ${row.street}, City: ${row.city}, Country: ${row.country}, Zip: ${row.zip}, Email: ${row.email}, Years: ${row.years}`
+            ).join('\n');
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        }
+
+        window.onbeforeunload = saveData;
+        window.onload = loadData;
+    </script>
+</body>
+</html>
